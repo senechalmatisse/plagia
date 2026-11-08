@@ -1,0 +1,23 @@
+# Environnements et caches
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+.ipynb_checkpoints/
+
+# Données reconstruites, caches et résultats (non versionnés, § 6.1)
+data/*
+!data/README.md
+results/*
+!results/README.md
+
+# Ressources externes
+stanford-*/
+*.jar
+*.ser.gz

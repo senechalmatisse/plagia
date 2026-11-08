@@ -1,0 +1,93 @@
+# Corpus littéraire (F1.2) : 10 auteurs × 6 œuvres du domaine public, 20 extraits de 500
+# à 1 000 mots par œuvre ; 5 œuvres en entraînement et 1 en test par auteur.
+# Un identifiant fourni est vérifié contre le titre de l'en-tête du livre ; sans
+# identifiant (ou en cas de discordance), le livre est résolu dans le catalogue
+# pg_catalog.csv. Téléchargement par un miroir, avec un délai entre deux requêtes.
+mirror: https://aleph.gutenberg.org
+delay_seconds: 2.0
+excerpts_per_work: 20
+min_words: 500
+max_words: 1000
+test_works_per_author: 1
+seed: 42
+authors:
+  - name: Jane Austen
+    works:
+      - {title: Pride and Prejudice, id: 1342}
+      - {title: Emma, id: 158}
+      - {title: Sense and Sensibility, id: 161}
+      - {title: Persuasion, id: 105}
+      - {title: Northanger Abbey, id: 121}
+      - {title: Mansfield Park, id: 141}
+  - name: Charles Dickens
+    works:
+      - {title: A Tale of Two Cities, id: 98}
+      - {title: Great Expectations, id: 1400}
+      - {title: Oliver Twist, id: 730}
+      - {title: David Copperfield, id: 766}
+      - {title: Hard Times, id: 786}
+      - {title: Bleak House, id: 1023}
+  - name: Mark Twain
+    works:
+      - {title: Adventures of Huckleberry Finn, id: 76}
+      - {title: The Adventures of Tom Sawyer, id: 74}
+      - {title: A Connecticut Yankee in King Arthur's Court, id: 86}
+      - {title: The Prince and the Pauper, id: 1837}
+      - {title: Life on the Mississippi, id: 245}
+      - {title: The Innocents Abroad, id: 3176}
+  - name: Arthur Conan Doyle
+    works:
+      - {title: A Study in Scarlet, id: 244}
+      - {title: The Sign of the Four, id: 2097}
+      - {title: The Adventures of Sherlock Holmes, id: 1661}
+      - {title: The Hound of the Baskervilles, id: 2852}
+      - {title: The Memoirs of Sherlock Holmes, id: 834}
+      - {title: The Lost World, id: 139}
+  - name: H. G. Wells
+    works:
+      - {title: The Time Machine, id: 35}
+      - {title: The War of the Worlds, id: 36}
+      - {title: The Invisible Man, id: 5230}
+      - {title: The Island of Doctor Moreau, id: 159}
+      - {title: The First Men in the Moon, id: 1013}
+      - {title: The War in the Air}
+  - name: Thomas Hardy
+    works:
+      - {title: Tess of the d'Urbervilles, id: 110}
+      - {title: Far from the Madding Crowd, id: 107}
+      - {title: Jude the Obscure, id: 153}
+      - {title: The Mayor of Casterbridge, id: 143}
+      - {title: The Return of the Native, id: 122}
+      - {title: The Woodlanders}
+  - name: Jack London
+    works:
+      - {title: The Call of the Wild, id: 215}
+      - {title: White Fang, id: 910}
+      - {title: The Sea-Wolf, id: 1074}
+      - {title: The Iron Heel, id: 1164}
+      - {title: Martin Eden, id: 1056}
+      - {title: Burning Daylight}
+  - name: Joseph Conrad
+    works:
+      - {title: Heart of Darkness, id: 219}
+      - {title: Lord Jim, id: 5658}
+      - {title: The Secret Agent, id: 974}
+      - {title: Nostromo}
+      - {title: Under Western Eyes}
+      - {title: Victory}
+  - name: George Eliot
+    works:
+      - {title: Middlemarch, id: 145}
+      - {title: Silas Marner, id: 550}
+      - {title: Adam Bede, id: 507}
+      - {title: The Mill on the Floss, id: 6688}
+      - {title: Romola}
+      - {title: Daniel Deronda}
+  - name: Robert Louis Stevenson
+    works:
+      - {title: Treasure Island, id: 120}
+      - {title: Kidnapped, id: 421}
+      - {title: The Strange Case of Dr. Jekyll and Mr. Hyde, id: 43}
+      - {title: The Black Arrow}
+      - {title: The Master of Ballantrae}
+      - {title: Catriona}

@@ -1,0 +1,17 @@
+# Paramètres du corpus de plagiat synthétique (F1.3), pour une base de la taille de C50
+# (5 000 textes). Le cahier des charges fixe des minimums (1 000 sources, 1 000 suspects,
+# 250 passages par niveau et par taille) : avec exactement 1 000 suspects, chaque hôte
+# plagié recevrait 6 ou 7 passages et les sources s'épuiseraient pour les passages de
+# 300 mots. 1 500 sources et 3 000 suspects (dont 1 500 plagiés) donnent 2 passages par
+# hôte et 250 passages par cellule ; la commande affiche le nombre obtenu par cellule.
+n_sources: 1500
+n_suspicious: 3000
+no_plagiarism_fraction: 0.5
+levels: [O0, O1, O2, O3]
+sizes: [50, 100, 300]
+passages_per_cell: 250
+split_fractions: {train: 0.6, validation: 0.2, test: 0.2}
+edit_rate: 0.15
+synonym_rate: 0.5
+min_host_words: 100
+seed: 42

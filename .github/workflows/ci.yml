@@ -1,0 +1,62 @@
+# Intégration continue (§ 6.2, [S]) : linter, typage et tests sur Linux, macOS et Windows.
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.13"
+
+      - name: Installer l'environnement (verrouillé si uv.lock est versionné)
+        run: |
+          if [ -f uv.lock ]; then uv sync --locked --group models; else uv sync --group models; fi
+
+      - name: Ressources NLTK
+        run: uv run plagia setup --nltk punkt_tab stopwords wordnet omw-1.4 --spacy
+
+      - name: Linter
+        run: |
+          uv run ruff check src tests
+          uv run ruff format --check src tests
+
+      - name: Typage
+        run: uv run mypy
+
+      - name: Tests et couverture
+        run: >
+          uv run pytest -m "not network"
+          --cov=plagia.corpus --cov=plagia.features --cov=plagia.similarity
+          --cov=plagia.models --cov=plagia.tasks
+          --cov-report=term-missing --cov-fail-under=80
+
+      - name: Démonstration hors ligne
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          uv run plagia corpus toy --kind literary --out data/corpora/toy_literary
+          uv run plagia corpus toy --kind news --out data/corpora/toy_news
+          uv run plagia corpus toy --kind plagiarism --out data/corpora/toy_plagiarism
+          uv run plagia run configs/demo/attribution.yaml --report
+          uv run plagia run configs/demo/plagiarism.yaml --report
+          uv run plagia run configs/demo/clustering.yaml --report
+
+      - name: Rapports de démonstration
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: rapports-demo
+          path: results/*/report.html

@@ -1,0 +1,62 @@
+# Démonstration hors ligne de l'étude A (attribution d'auteur) sur le corpus jouet.
+# Même structure que configs/studies/study_a_c50.yaml, effectifs réduits.
+# Préparer le corpus : plagia corpus toy --kind literary --out data/corpora/toy_literary
+name: demo_attribution
+task: attribution
+description: >-
+  Démonstration de l'étude A sur le corpus jouet littéraire (découpage par œuvre) :
+  représentations lexicales (dont une variante à entités masquées), stylistiques et
+  d'entités, naïve Bayes maison et SVM, textes de test complets ou tronqués à 25 mots,
+  ablations et ensemble ouvert. Sur ce corpus, les représentations lexicales complètes
+  atteignent le plafond : le masquage des entités et la troncature montrent ce qui
+  reste quand le sujet et la longueur ne suffisent plus.
+seed: 42
+n_jobs: 2
+output_dir: results
+annotation:
+  engine: heuristic          # spaCy pour l'étude réelle
+  cache_path: data/cache/annotations.sqlite
+protocol:
+  cv_folds: 3
+  seeds: 2
+  bootstrap: 300
+  group_by: work             # plis groupés par œuvre
+attribution:
+  corpus: data/corpora/toy_literary
+  representations:
+    R1:
+      description: sac de mots
+      blocks: [{type: bow, params: {stopwords_source: builtin}}]
+    R1-masked:
+      description: sac de mots, entités nommées masquées (F2.7)
+      blocks: [{type: bow, mask: entities, params: {stopwords_source: builtin}}]
+    R3:
+      description: TF-IDF de n-grammes de caractères (3 à 5)
+      blocks: [{type: char_ngrams, params: {ngram_range: [3, 5]}}]
+    Style:
+      description: R3 + R4 + R5
+      blocks:
+        - {type: char_ngrams, params: {ngram_range: [3, 5]}}
+        - {type: stylometry, weight: 0.5}
+        - {type: pos_ngrams, weight: 0.5}
+    Style+entities:
+      description: Style + R6
+      blocks:
+        - {type: char_ngrams, params: {ngram_range: [3, 5]}}
+        - {type: stylometry, weight: 0.5}
+        - {type: pos_ngrams, weight: 0.5}
+        - {type: entities, weight: 0.5}
+  classifiers:
+    nb:
+      type: naive_bayes
+      grid: {alpha: [0.1, 1.0]}
+    svm:
+      type: linear_svm
+      grid: {C: [0.1, 1.0]}
+  n_authors: [8]
+  n_train: [null]
+  text_length: [null, 25]    # textes de test complets ou tronqués à 25 mots
+  ablation:
+    base: Style+entities
+  open_set:
+    unknown_authors: 1

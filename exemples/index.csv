@@ -1,0 +1,4 @@
+fichier,id,auteur,jeu,role,passages_plagies,obfuscations
+susp-00000.txt,susp-00000,author04,test,suspicious,2,O2
+susp-00001.txt,susp-00001,author07,test,suspicious,2,O2
+susp-00002.txt,susp-00002,author03,test,suspicious,2,O3

@@ -1,0 +1,52 @@
+# Étude A — variantes recommandées [S] sur C50 : longueur du texte à classer, masquage
+# des mentions (F2.7) pour R1 à R3, types issus des bases de connaissances (R7), LSA
+# (R8), k plus proches voisins, ablations de la représentation complète, ensemble ouvert.
+# Prérequis supplémentaires : Spotlight local (Docker) et ontologie DBpedia (taxonomy_path).
+name: study_a_c50_extended
+task: attribution
+description: Variantes recommandées de l'étude A (masquage, longueur, R7, R8, ablations, ensemble ouvert).
+seed: 42
+n_jobs: 4
+annotation:
+  engine: spacy
+  model: en_core_web_sm
+  linker: spotlight
+  spotlight_url: http://localhost:2222/rest
+  knowledge_base: dbpedia
+  taxonomy_path: data/kb/dbpedia_ontology.nt
+  cache_path: data/cache/annotations.sqlite
+protocol:
+  cv_folds: 5
+  seeds: 5
+  bootstrap: 1000
+attribution:
+  corpus: data/corpora/c50
+  representations:
+    R1-masked: {blocks: [{type: bow, mask: entities}]}
+    R2-masked: {blocks: [{type: tfidf, mask: entities, params: {ngram_range: [1, 2], min_df: 2}}]}
+    R3-masked: {blocks: [{type: char_ngrams, mask: entities, params: {ngram_range: [3, 5], min_df: 2}}]}
+    R7: {blocks: [{type: types, params: {depth: 2}}]}
+    R8: {blocks: [{type: lsa, params: {n_components: 300}}]}
+    Full:
+      description: combinaison complète
+      blocks:
+        - {type: tfidf, params: {ngram_range: [1, 2], min_df: 2}}
+        - {type: char_ngrams, params: {ngram_range: [3, 5], min_df: 2}}
+        - {type: stylometry, weight: 0.5}
+        - {type: pos_ngrams, weight: 0.5}
+        - {type: entities, weight: 0.5}
+        - {type: types, weight: 0.5}
+  classifiers:
+    svm: {type: linear_svm, grid: {C: [0.1, 1.0, 10.0]}}
+    logreg: {type: logreg, grid: {C: [1.0, 10.0, 100.0]}}
+    knn: {type: knn, grid: {n_neighbors: [1, 5, 15]}}
+  n_authors: [10, 50]
+  n_train: [50]
+  text_length: [100, 300, 1000]
+  ablation:
+    base: Full
+  open_set:
+    unknown_authors: 5
+    threshold: auto
+exclude:
+  - {representation: R8, classifier: nb}

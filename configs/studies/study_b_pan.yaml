@@ -1,0 +1,23 @@
+# Étude B — validation externe sur PAN 2013 (alignement de textes, Zenodo 3715980).
+# Les paires (suspect, source) fournies par PAN tiennent lieu de recherche des sources.
+# Prérequis :
+#   plagia corpus pan --source data/raw/pan13-train --split train \
+#       --test data/raw/pan13-test --validation 0.2 --out data/corpora/pan13
+name: study_b_pan13
+task: plagiarism
+description: "Validation externe sur PAN 2013 par type d'obfuscation (taille de passage non définie, notée 0)."
+seed: 42
+n_jobs: 4
+annotation: {engine: spacy, model: en_core_web_sm, cache_path: data/cache/annotations.sqlite}
+protocol: {seeds: 5, bootstrap: 1000}
+plagiarism:
+  corpus: data/corpora/pan13
+  levels: [none, random, translation, summary]
+  sizes: [0]
+  feature_sets:
+    L: [cosine_tfidf, containment_shingles, lcs]
+    L+E: [cosine_tfidf, containment_shingles, lcs, jaccard_entities, type_divergence]
+  classifiers:
+    logreg: {type: logreg}
+    svm: {type: linear_svm}
+  retrieval: {method: pairs}

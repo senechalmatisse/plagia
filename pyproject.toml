@@ -1,0 +1,125 @@
+[project]
+name = "plagia"
+version = "0.1.0"
+description = "Analyse d'identité d'auteurs (attribution, vérification) et détection de plagiat par TAL et apprentissage automatique."
+readme = "README.md"
+requires-python = ">=3.13,<3.14"
+keywords = ["stylométrie", "attribution d'auteur", "plagiat", "TAL", "similarité textuelle"]
+classifiers = [
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Topic :: Text Processing :: Linguistic",
+]
+# Versions majeures et mineures contrôlées ici ; versions exactes figées dans uv.lock (§ 5.2).
+dependencies = [
+  "numpy>=2.5,<2.6",
+  "scipy>=1.15",
+  "scikit-learn>=1.9,<1.10",
+  "pandas>=3.1,<3.2",
+  "spacy>=3.8,<3.9",
+  "nltk>=3.10,<3.11",
+  "pydantic>=2.14,<2.15",
+  "statsmodels>=0.15,<0.16",
+  "pyyaml>=6.0",
+  "joblib>=1.4",
+  "tqdm>=4.66",
+  "matplotlib>=3.9",
+  "rdflib>=7.0",
+]
+
+[project.optional-dependencies]
+# Dépendances facultatives : leur absence n'empêche jamais le socle obligatoire.
+semantic = ["gensim>=4.4,<4.5"]
+transformers = ["sentence-transformers>=3.0"]
+viz = ["umap-learn>=0.5"]
+graph = ["networkx>=3.2"]
+parquet = ["pyarrow>=17"]
+demo = ["streamlit>=1.40"]
+all = ["plagia[semantic,transformers,viz,graph,parquet]"]
+
+[project.scripts]
+plagia = "plagia.cli.main:main"
+
+[dependency-groups]
+dev = [
+  "pytest>=8.3",
+  "pytest-cov>=5.0",
+  "ruff>=0.8",
+  "mypy>=1.13",
+  "types-PyYAML>=6.0",
+  "networkx>=3.2",
+]
+# Modèles spaCy épinglés par URL : version enregistrée séparément de celle de spaCy.
+models = [
+  "en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl",
+]
+notebook = ["jupyter>=1.1"]
+
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/plagia"]
+
+[tool.uv]
+# Le modèle spaCy fait partie de l'installation par défaut : « uv sync » le garde (synchronisation exacte).
+default-groups = ["dev", "models"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+markers = [
+  "slow: tests longs (campagnes réduites, corpus synthétiques complets)",
+  "spacy: nécessite spaCy et un modèle installé",
+  "nltk: nécessite NLTK et ses ressources",
+  "network: nécessite un accès réseau",
+]
+
+[tool.coverage.run]
+source = ["plagia"]
+branch = true
+# Interface Streamlit (dépendance facultative) : sa logique est testée dans plagia.reporting.demo.
+omit = ["src/plagia/cli/demo_app.py"]
+
+[tool.coverage.report]
+show_missing = true
+exclude_also = [
+  "if TYPE_CHECKING:",
+  "raise NotImplementedError",
+  "@(abc\\.)?abstractmethod",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py313"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF", "N", "C4", "PT", "NPY", "PIE", "RET"]
+ignore = [
+  "RUF001", "RUF002", "RUF003",  # apostrophes et guillemets typographiques du français
+  "N803", "N806",                # X, Y : notation usuelle en apprentissage automatique
+  "RET504",
+  "SIM905",                      # listes de mots écrites "a b c".split() pour la lisibilité
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["PT018", "PT011", "E501"]
+
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = ["plagia.corpus.cleaning.CleaningConfig", "plagia.corpus.synthetic.SyntheticConfig"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["plagia"]
+
+[tool.mypy]
+python_version = "3.13"
+plugins = ["pydantic.mypy"]
+files = ["src/plagia"]
+ignore_missing_imports = true
+disallow_untyped_defs = true
+check_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true

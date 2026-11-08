@@ -1,0 +1,39 @@
+# Démonstration hors ligne de l'étude C (regroupement).
+# Préparer les corpus :
+#   plagia corpus toy --kind news --out data/corpora/toy_news
+#   plagia corpus toy --kind literary --out data/corpora/toy_literary
+name: demo_clustering
+task: clustering
+description: >-
+  Démonstration de l'étude C : représentations proches du sujet (mots) ou du style
+  (caractères, mots-outils, étiquettes), avec ou sans masquage des entités, et
+  représentation par entités ; k-means et classification agglomérative.
+seed: 42
+n_jobs: 2
+annotation:
+  engine: heuristic
+  cache_path: data/cache/annotations.sqlite
+protocol:
+  seeds: 2
+clustering:
+  corpora:
+    news: {path: data/corpora/toy_news, split: test, labels: [author]}
+    literary: {path: data/corpora/toy_literary, labels: [author, work]}
+  representations:
+    words: {blocks: [{type: tfidf, params: {stopwords: false, stopwords_source: builtin}}]}
+    words_masked: {blocks: [{type: tfidf, mask: entities, params: {stopwords: false, stopwords_source: builtin}}]}
+    style:
+      blocks:
+        - {type: char_ngrams, params: {ngram_range: [2, 4]}}
+        - {type: stylometry, params: {lengths: false, richness: false}}
+        - {type: pos_ngrams}
+    style_masked:
+      blocks:
+        - {type: char_ngrams, mask: entities, params: {ngram_range: [2, 4]}}
+        - {type: stylometry, params: {lengths: false, richness: false}}
+        - {type: pos_ngrams}
+    entities: {blocks: [{type: entities}, {type: types}]}
+  dimensions: [20, 50]
+  algorithms:
+    kmeans: {type: kmeans}
+    agglomerative: {type: agglomerative}
